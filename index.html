@@ -2,140 +2,367 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#2c5aa8">
-  <meta name="description" content="Lions score? Somebody does a chore. A Thanksgiving game-day tradition.">
-  <title>Go Lions! · Thanksgiving Chores</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0069a8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Go Lions">
+  <meta name="description" content="The other team scores, somebody does a chore. A Thanksgiving Lions game tradition.">
+  <title>Go Lions! Thanksgiving chores</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏈</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Barlow:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* Lions: muted Honolulu Blue + silver */
-      --lions-blue: #2c5aa8;
-      --lions-blue-dark: #234a8c;
-      --lions-silver: #cfd3d8;
-      /* Bears: orange + navy */
-      --bears-orange: #e2560f;
-      --bears-navy: #0b162a;
-      --bears-navy-light: #1c2a44;
-      --card-light: #f4f5f7;
-      --radius: 14px;
-      --shadow: 0 12px 24px -8px rgb(0 0 0 / 0.3);
+      --honolulu: #0069a8;
+      --honolulu-deep: #004f80;
+      --silver: #b0b7bc;
+      --chalk: #f6f8f9;
+      --navy: #0b162a;
+      --navy-2: #16233d;
+      --orange: #c83803;
+      --orange-hot: #e2490f;
+      --flag: #f7c600;
+
+      --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+      --body: "Barlow", system-ui, -apple-system, sans-serif;
+
+      --pad: max(1.25rem, env(safe-area-inset-left));
+      --top: max(1.25rem, env(safe-area-inset-top));
+      --bottom: max(1.25rem, env(safe-area-inset-bottom));
     }
 
     * { box-sizing: border-box; margin: 0; }
+    [hidden] { display: none !important; }
+
+    html, body { height: 100%; }
 
     body {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-family: var(--body);
+      color: var(--chalk);
+      background: var(--honolulu);
+      -webkit-font-smoothing: antialiased;
       -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+      transition: background-color 0.35s ease;
     }
+    body[data-screen="chore"] { background: var(--navy); }
 
     .screen {
+      position: relative;
       min-height: 100dvh;
       display: grid;
-      place-items: center;
-      padding: 1rem;
-      transition: background-color 0.3s;
+      grid-template-rows: auto 1fr auto;
+      padding: var(--top) var(--pad) var(--bottom);
+      max-width: 34rem;
+      margin: 0 auto;
+      isolation: isolate;
     }
-    body[data-screen="home"]  .screen { background: var(--lions-blue); }
-    body[data-screen="chore"] .screen { background: var(--bears-orange); }
+    .screen[hidden] { display: none; }
 
-    .card {
+    /* Yard lines: the field the Lions screen sits on */
+    #home::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background:
+        repeating-linear-gradient(to bottom,
+          transparent 0 calc(10vh - 2px),
+          rgb(255 255 255 / 0.09) calc(10vh - 2px) 10vh);
+      pointer-events: none;
+    }
+
+    /* ---------- Home (Lions) ---------- */
+    .kicker {
+      font-weight: 600;
+      font-size: 1rem;
+      color: rgb(255 255 255 / 0.75);
+    }
+
+    .hero {
+      align-self: center;
+      padding-block: 2rem;
+    }
+
+    .wordmark {
+      font-family: var(--display);
+      font-weight: 900;
+      text-transform: uppercase;
+      line-height: 0.82;
+      letter-spacing: -0.01em;
+      font-size: clamp(6rem, 44vw, 13rem);
+      color: var(--chalk);
+    }
+    .wordmark span { display: block; }
+    .wordmark .outline {
+      color: transparent;
+      -webkit-text-stroke: 2px var(--silver);
+    }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      margin-bottom: 1rem;
+      border-radius: 18px;
+      background: var(--honolulu-deep);
+      box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+      overflow: hidden;
+    }
+    .scoreboard div { padding: 0.9rem 1.1rem; }
+    .scoreboard div + div { border-left: 1px solid rgb(255 255 255 / 0.12); }
+    .scoreboard dt { font-size: 0.9rem; font-weight: 600; color: rgb(255 255 255 / 0.7); }
+    .scoreboard dd {
+      font-family: var(--display);
+      font-weight: 900;
+      font-size: 3rem;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .actions { display: grid; gap: 0.5rem; }
+
+    .btn {
+      appearance: none;
+      border: 0;
+      width: 100%;
+      min-height: 4.25rem;
+      border-radius: 18px;
+      font-family: var(--display);
+      font-weight: 900;
+      font-size: clamp(1.4rem, 6.4vw, 1.85rem);
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 0.12s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:focus-visible { outline: 3px solid var(--flag); outline-offset: 3px; }
+
+    .btn-draw {
+      background: var(--chalk);
+      color: var(--honolulu);
+      box-shadow: 0 6px 0 var(--silver);
+    }
+    .btn-draw:active { box-shadow: 0 2px 0 var(--silver); transform: translateY(4px); }
+
+    .btn-text {
+      appearance: none;
+      background: none;
+      border: 0;
+      padding: 0.75rem;
+      font: 600 0.95rem var(--body);
+      color: rgb(255 255 255 / 0.7);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: pointer;
+    }
+    .btn-text:focus-visible { outline: 2px solid var(--flag); border-radius: 6px; }
+
+    /* ---------- Chore (Bears) ---------- */
+    #chore .kicker { color: var(--silver); }
+
+    .call {
+      align-self: center;
+      padding-block: 1.5rem 2rem;
+    }
+    .call h2 {
+      font-family: var(--display);
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: clamp(4.5rem, 26vw, 8rem);
+      line-height: 0.85;
+      color: var(--orange-hot);
+    }
+
+    /* The slip of paper pulled from the hat */
+    .slip {
+      position: relative;
+      margin-top: 1.75rem;
+      padding: 1.5rem 1.4rem 1.6rem;
+      background: #fbf8f1;
+      color: var(--navy);
+      border-radius: 3px;
+      transform: rotate(-1.5deg);
+      box-shadow: 0 18px 30px -12px rgb(0 0 0 / 0.6);
+      /* soft fold line across the middle */
+      background-image: linear-gradient(to bottom, transparent 49.5%, rgb(11 22 42 / 0.07) 50%, transparent 50.5%);
+    }
+    .chore-text {
+      font-weight: 700;
+      font-size: clamp(1.45rem, 6.6vw, 1.9rem);
+      line-height: 1.3;
+      text-wrap: balance;
+    }
+    body[data-screen="chore"] .call h2 { animation: rise 0.35s ease-out both; }
+    body[data-screen="chore"] .slip { animation: pull 0.6s 0.15s cubic-bezier(.2,.9,.3,1.2) both; }
+
+    .btn-done {
+      background: var(--orange);
+      color: var(--chalk);
+      box-shadow: 0 6px 0 #8a2602;
+    }
+    .btn-done:active { box-shadow: 0 2px 0 #8a2602; transform: translateY(4px); }
+
+    @keyframes pull {
+      0%   { transform: translateY(45vh) rotate(8deg) scale(0.85); opacity: 0; }
+      40%  { opacity: 1; }
+      100% { transform: rotate(-1.5deg); opacity: 1; }
+    }
+    /* ---------- Theme toggle ---------- */
+    .theme-toggle {
+      position: fixed;
+      top: var(--top);
+      right: var(--pad);
+      z-index: 10;
+      appearance: none;
+      border: 0;
+      padding: 0.45rem 0.8rem;
+      border-radius: 999px;
+      font: 600 0.85rem var(--body);
+      color: var(--chalk);
+      background: rgb(255 255 255 / 0.16);
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .theme-toggle:focus-visible { outline: 2px solid var(--flag); outline-offset: 2px; }
+    body[data-theme="classic"] .theme-toggle {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      color: #1e3a8a;
+      background: rgb(255 255 255 / 0.7);
+    }
+    body:not([data-screen="home"]) .theme-toggle { display: none; }
+
+    /* ---------- Classic: the original 2024 version, kept as it was ---------- */
+    body[data-theme="classic"] { background: #fff; }
+    .classic {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    #c-home  { background: rgb(29 78 216 / 0.9); }
+    #c-chore { background: #ea580c; }
+    .c-card {
       width: 100%;
       max-width: 28rem;
-      padding: 2rem 1.5rem;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      padding: 1.5rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 1.5rem;
-      text-align: center;
-      animation: pop 0.25s ease-out;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     }
-    .card[hidden] { display: none; }
-    #home  { background: var(--lions-silver); }
-    #chore { background: var(--card-light); }
-
-    h1 { font-size: clamp(1.6rem, 6vw, 2rem); color: var(--lions-blue); }
-    h2 { font-size: 1.5rem; color: var(--bears-navy); }
-
-    button {
-      font: inherit;
-      font-weight: 700;
-      color: #fff;
+    #c-home .c-card  { background: #d1d5db; }
+    #c-chore .c-card { background: #f3f4f6; }
+    .c-card h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; color: rgb(29 78 216 / 0.9); text-align: center; }
+    .c-card h2 { font-size: 1.5rem; line-height: 2rem; font-weight: 700; color: #0f172a; text-align: center; }
+    .c-btn {
+      appearance: none;
       border: 0;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      color: #fff;
+      font-family: inherit;
+      font-weight: 500;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
       cursor: pointer;
-      transition: transform 0.15s, background-color 0.15s;
+      transition: transform 0.2s;
     }
-    button:hover  { transform: scale(1.04); }
-    button:active { transform: scale(0.97); }
-    button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
-
-    #generate {
-      font-size: 1.35rem;
-      padding: 1.75rem 2.25rem;
-      background: var(--lions-blue);
-    }
-    #generate:hover { background: var(--lions-blue-dark); }
-
-    #done {
-      font-size: 1.1rem;
-      padding: 1.1rem 2rem;
-      background: var(--bears-navy);
-    }
-    #done:hover { background: var(--bears-navy-light); }
-
-    .tally { font-size: 1.1rem; color: #374151; }
-    .tally strong { color: var(--lions-blue); }
-
-    .chore-box {
+    .c-btn:hover { transform: scale(1.05); }
+    .c-btn:focus-visible { outline: 2px solid #0f172a; outline-offset: 2px; }
+    #c-draw { background: rgb(29 78 216 / 0.9); font-size: 1.25rem; line-height: 1.75rem; padding: 2rem; }
+    #c-draw:hover { background: rgb(30 64 175 / 0.9); }
+    #c-done { background: #0f172a; font-size: 0.875rem; padding: 1.5rem 2rem; }
+    #c-done:hover { background: #1e293b; }
+    .c-tally { font-size: 1.125rem; line-height: 1.75rem; color: #374151; text-align: center; }
+    .c-tally span { font-weight: 700; color: rgb(29 78 216 / 0.9); }
+    .c-box {
       width: 100%;
       padding: 1.5rem;
       background: #fff;
-      border: 2px solid var(--bears-navy);
-      border-radius: 10px;
-      font-size: 1.3rem;
-      line-height: 1.55;
-      color: var(--bears-navy);
+      border: 2px solid #0f172a;
+      border-radius: 0.5rem;
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+    .c-box p { font-size: 1.25rem; line-height: 1.625; text-align: center; color: #0f172a; }
+
+    @keyframes rise {
+      from { transform: translateY(16px); opacity: 0; }
+      to   { transform: none; opacity: 1; }
     }
 
-    .reset {
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: #4b5563;
-      background: none;
-      box-shadow: none;
-      text-decoration: underline;
-      padding: 0.25rem;
+    @media (min-width: 700px) {
+      .screen { padding-top: 3rem; padding-bottom: 3rem; }
     }
-    .reset:hover { transform: none; color: #111827; }
 
-    @keyframes pop {
-      from { opacity: 0; transform: scale(0.96); }
-      to   { opacity: 1; transform: scale(1); }
-    }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
 <body data-screen="home">
-  <main class="screen">
-    <section id="home" class="card" aria-labelledby="home-title">
-      <h1 id="home-title">🏈🦁 Go Lions! 🦃🍂</h1>
-      <button id="generate" type="button">Generate Chore</button>
-      <p class="tally" id="tally" hidden>Chores completed: <strong id="count">0</strong></p>
-      <button class="reset" id="reset" type="button" hidden>Reset for a new game</button>
+
+  <main id="home" class="screen" aria-labelledby="wordmark">
+    <p class="kicker">Thanksgiving game day</p>
+
+    <div class="hero">
+      <h1 class="wordmark" id="wordmark">
+        <span>Go</span>
+        <span class="outline">Lions</span>
+      </h1>
+    </div>
+
+    <div>
+      <dl class="scoreboard" id="scoreboard" hidden>
+        <div><dt>Chores done</dt><dd id="count">0</dd></div>
+        <div><dt>Left in the hat</dt><dd id="left">15</dd></div>
+      </dl>
+      <div class="actions">
+        <button class="btn btn-draw" id="draw" type="button">They scored. Draw a chore.</button>
+        <button class="btn-text" id="reset" type="button" hidden>Start a new game</button>
+      </div>
+    </div>
+  </main>
+
+  <main id="chore" class="screen" aria-labelledby="call-title" hidden>
+    <p class="kicker">They scored, so…</p>
+
+    <section class="call" aria-live="polite">
+      <h2 id="call-title">You're up</h2>
+      <div class="slip">
+        <p class="chore-text" id="chore-text"></p>
+      </div>
     </section>
 
-    <section id="chore" class="card" aria-labelledby="chore-title" aria-live="polite" hidden>
-      <h2 id="chore-title">Your Chore:</h2>
-      <p class="chore-box" id="chore-text"></p>
-      <button id="done" type="button">Completed!</button>
-    </section>
+    <div>
+      <button class="btn btn-done" id="done" type="button">Done it</button>
+    </div>
   </main>
+
+  <button class="theme-toggle" id="theme-toggle" type="button">2024 version</button>
+
+  <!-- The original 2024 app, preserved -->
+  <div id="c-home" class="classic" hidden>
+    <div class="c-card">
+      <h1>🏈🦁 Go Lions! 🦃🍂</h1>
+      <button class="c-btn" id="c-draw" type="button">Generate Chore</button>
+      <p class="c-tally" id="c-tally" hidden>Chores Completed: <span id="c-count">0</span></p>
+    </div>
+  </div>
+
+  <div id="c-chore" class="classic" hidden>
+    <div class="c-card">
+      <h2>Your Chore:</h2>
+      <div class="c-box"><p id="c-chore-text"></p></div>
+      <button class="c-btn" id="c-done" type="button">Completed!</button>
+    </div>
+  </div>
 
   <script>
     const CHORES = [
@@ -150,67 +377,130 @@
       "Do your best runway walk across the room and strike a pose.",
       "Talk like a pirate for the next two minutes.",
       "Spell out your name using only your body, YMCA-dance style.",
-      "Narrate your life for the next two minutes like the dramatic voiceover in a nature documentary.",
-      "Act like a piece of toast slowly popping out of a toaster, complete with sound effects.",
-      "Deliver a motivational speech to the nearest houseplant, urging it to grow taller.",
+      "Narrate your life for two minutes like the voiceover in a nature documentary.",
+      "Act like a piece of toast slowly popping out of a toaster, sound effects included.",
+      "Give the nearest houseplant a motivational speech about growing taller.",
       "Hop on one foot while patting your head and rubbing your belly for 30 seconds."
     ];
 
-    const STORAGE_KEY = "lions-chores";
+    // The 2024 wording, for the classic version. Same order as CHORES.
+    const CLASSIC_CHORES = [
+      "Balance a book on your head and walk across the room without dropping it.",
+      "Speak in rhyme for the next two minutes.",
+      "Pretend to be a chicken and cluck your way across the room.",
+      "Draw a self-portrait with your non-dominant hand for two minutes.",
+      "Do a crab walk from one end of the room to the other.",
+      "Act like you're stuck in slow motion for the next two minutes.",
+      "Spin around 10 times and then try to walk in a straight line.",
+      "Hold a plank for 30 seconds while saying as many dog breeds as you can.",
+      "Do your best runway walk across the room and strike a pose.",
+      "Talk like a pirate for the next two minutes.",
+      "Spell out your name using only your body as if you're a living version of the YMCA dance.",
+      "Narrate your life for the next two minutes as if you're the dramatic voiceover in a nature documentary.",
+      "Act like a piece of toast slowly popping out of a toaster, complete with sound effects.",
+      "Deliver a motivational speech to the nearest houseplant, urging it to grow taller.",
+      "Hop on one foot while patting your head and rubbing your belly simultaneously for 30 seconds"
+    ];
+
+    const STORAGE_KEY = "lions-chores-v2";
     const $ = (id) => document.getElementById(id);
 
-    // State survives a page refresh mid-game. Storage can fail (private mode), so stay quiet if it does.
-    const state = load() ?? { count: 0, deck: [] };
-
+    // Saved between refreshes. Storage can be unavailable (private mode), so fail quietly.
+    const state = { count: 0, deck: [], theme: "new", current: null, ...load() };
     function load() {
-      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { return null; }
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? {}; } catch { return {}; }
     }
     function save() {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
     }
 
-    // Shuffle-bag: every chore comes up once before any repeats.
-    function nextChore() {
-      if (state.deck.length === 0) {
-        state.deck = CHORES.map((_, i) => i);
-        for (let i = state.deck.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [state.deck[i], state.deck[j]] = [state.deck[j], state.deck[i]];
-        }
+    // Like pulling slips from a hat: every chore comes up once before any repeat.
+    function shuffledDeck() {
+      const deck = CHORES.map((_, i) => i);
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
       }
-      return CHORES[state.deck.pop()];
+      return deck;
     }
-
-    function show(screen) {
-      document.body.dataset.screen = screen;
-      $("home").hidden = screen !== "home";
-      $("chore").hidden = screen !== "chore";
-      (screen === "home" ? $("generate") : $("done")).focus();
-    }
-
-    function renderTally() {
-      $("count").textContent = state.count;
-      $("tally").hidden = $("reset").hidden = state.count === 0;
-    }
-
-    $("generate").addEventListener("click", () => {
-      $("chore-text").textContent = nextChore();
+    function drawChore() {
+      if (state.deck.length === 0) state.deck = shuffledDeck();
+      state.current = state.deck.pop();
       state.count++;
       save();
-      renderTally();
-      show("chore");
-    });
+    }
 
+    const SCREENS = {
+      new:     { home: "home",   chore: "chore",   focus: { home: "draw",   chore: "done" },   color: { home: "#0069a8", chore: "#0b162a" } },
+      classic: { home: "c-home", chore: "c-chore", focus: { home: "c-draw", chore: "c-done" }, color: { home: "#1d4ed8", chore: "#ea580c" } },
+    };
+    let screen = "home";
+
+    function render() {
+      const started = state.count > 0;
+      $("count").textContent = $("c-count").textContent = state.count;
+      $("left").textContent = state.deck.length || CHORES.length;
+      $("scoreboard").hidden = $("reset").hidden = $("c-tally").hidden = !started;
+      if (state.current !== null) {
+        $("chore-text").textContent = CHORES[state.current];
+        $("c-chore-text").textContent = CLASSIC_CHORES[state.current];
+      }
+      $("theme-toggle").textContent = state.theme === "classic" ? "2026 version" : "2024 version";
+      $("theme-toggle").setAttribute("aria-label",
+        state.theme === "classic" ? "Switch to the new design" : "Switch to the original 2024 design");
+    }
+
+    function show(next, moveFocus = true) {
+      screen = next;
+      document.body.dataset.screen = screen;
+      document.body.dataset.theme = state.theme;
+      for (const [theme, ids] of Object.entries(SCREENS)) {
+        $(ids.home).hidden  = !(theme === state.theme && screen === "home");
+        $(ids.chore).hidden = !(theme === state.theme && screen === "chore");
+      }
+      const ids = SCREENS[state.theme];
+      document.querySelector('meta[name="theme-color"]').setAttribute("content", ids.color[screen]);
+      window.scrollTo(0, 0);
+      if (moveFocus) $(ids.focus[screen]).focus({ preventScroll: true });
+    }
+
+    function onDraw() {
+      drawChore();
+      render();
+      show("chore");
+      navigator.vibrate?.([30, 40, 60]);
+    }
+    $("draw").addEventListener("click", onDraw);
+    $("c-draw").addEventListener("click", onDraw);
     $("done").addEventListener("click", () => show("home"));
+    $("c-done").addEventListener("click", () => show("home"));
 
     $("reset").addEventListener("click", () => {
       state.count = 0;
       state.deck = [];
+      state.current = null;
       save();
-      renderTally();
+      render();
     });
 
-    renderTally();
+    $("theme-toggle").addEventListener("click", () => {
+      state.theme = state.theme === "classic" ? "new" : "classic";
+      save();
+      render();
+      show("home");
+    });
+
+    // Keep the screen awake while the phone sits on the coffee table.
+    async function stayAwake() {
+      try { await navigator.wakeLock?.request("screen"); } catch {}
+    }
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") stayAwake();
+    });
+    stayAwake();
+
+    render();
+    show("home", false);
   </script>
 </body>
 </html>
