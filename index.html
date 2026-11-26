@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2c5aa8">
+  <meta name="description" content="Lions score? Somebody does a chore. A Thanksgiving game-day tradition.">
+  <title>Go Lions! · Thanksgiving Chores</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏈</text></svg>">
+  <style>
+    :root {
+      /* Lions: muted Honolulu Blue + silver */
+      --lions-blue: #2c5aa8;
+      --lions-blue-dark: #234a8c;
+      --lions-silver: #cfd3d8;
+      /* Bears: orange + navy */
+      --bears-orange: #e2560f;
+      --bears-navy: #0b162a;
+      --bears-navy-light: #1c2a44;
+      --card-light: #f4f5f7;
+      --radius: 14px;
+      --shadow: 0 12px 24px -8px rgb(0 0 0 / 0.3);
+    }
+
+    * { box-sizing: border-box; margin: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .screen {
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      transition: background-color 0.3s;
+    }
+    body[data-screen="home"]  .screen { background: var(--lions-blue); }
+    body[data-screen="chore"] .screen { background: var(--bears-orange); }
+
+    .card {
+      width: 100%;
+      max-width: 28rem;
+      padding: 2rem 1.5rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      text-align: center;
+      animation: pop 0.25s ease-out;
+    }
+    .card[hidden] { display: none; }
+    #home  { background: var(--lions-silver); }
+    #chore { background: var(--card-light); }
+
+    h1 { font-size: clamp(1.6rem, 6vw, 2rem); color: var(--lions-blue); }
+    h2 { font-size: 1.5rem; color: var(--bears-navy); }
+
+    button {
+      font: inherit;
+      font-weight: 700;
+      color: #fff;
+      border: 0;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.15s, background-color 0.15s;
+    }
+    button:hover  { transform: scale(1.04); }
+    button:active { transform: scale(0.97); }
+    button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+
+    #generate {
+      font-size: 1.35rem;
+      padding: 1.75rem 2.25rem;
+      background: var(--lions-blue);
+    }
+    #generate:hover { background: var(--lions-blue-dark); }
+
+    #done {
+      font-size: 1.1rem;
+      padding: 1.1rem 2rem;
+      background: var(--bears-navy);
+    }
+    #done:hover { background: var(--bears-navy-light); }
+
+    .tally { font-size: 1.1rem; color: #374151; }
+    .tally strong { color: var(--lions-blue); }
+
+    .chore-box {
+      width: 100%;
+      padding: 1.5rem;
+      background: #fff;
+      border: 2px solid var(--bears-navy);
+      border-radius: 10px;
+      font-size: 1.3rem;
+      line-height: 1.55;
+      color: var(--bears-navy);
+    }
+
+    .reset {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #4b5563;
+      background: none;
+      box-shadow: none;
+      text-decoration: underline;
+      padding: 0.25rem;
+    }
+    .reset:hover { transform: none; color: #111827; }
+
+    @keyframes pop {
+      from { opacity: 0; transform: scale(0.96); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body data-screen="home">
+  <main class="screen">
+    <section id="home" class="card" aria-labelledby="home-title">
+      <h1 id="home-title">🏈🦁 Go Lions! 🦃🍂</h1>
+      <button id="generate" type="button">Generate Chore</button>
+      <p class="tally" id="tally" hidden>Chores completed: <strong id="count">0</strong></p>
+      <button class="reset" id="reset" type="button" hidden>Reset for a new game</button>
+    </section>
+
+    <section id="chore" class="card" aria-labelledby="chore-title" aria-live="polite" hidden>
+      <h2 id="chore-title">Your Chore:</h2>
+      <p class="chore-box" id="chore-text"></p>
+      <button id="done" type="button">Completed!</button>
+    </section>
+  </main>
+
+  <script>
+    const CHORES = [
+      "Balance a book on your head and walk across the room without dropping it.",
+      "Speak in rhyme for the next two minutes.",
+      "Pretend to be a chicken and cluck your way across the room.",
+      "Draw a self-portrait with your non-dominant hand for two minutes.",
+      "Do a crab walk from one end of the room to the other.",
+      "Act like you're stuck in slow motion for the next two minutes.",
+      "Spin around 10 times and then try to walk in a straight line.",
+      "Hold a plank for 30 seconds while saying as many dog breeds as you can.",
+      "Do your best runway walk across the room and strike a pose.",
+      "Talk like a pirate for the next two minutes.",
+      "Spell out your name using only your body, YMCA-dance style.",
+      "Narrate your life for the next two minutes like the dramatic voiceover in a nature documentary.",
+      "Act like a piece of toast slowly popping out of a toaster, complete with sound effects.",
+      "Deliver a motivational speech to the nearest houseplant, urging it to grow taller.",
+      "Hop on one foot while patting your head and rubbing your belly for 30 seconds."
+    ];
+
+    const STORAGE_KEY = "lions-chores";
+    const $ = (id) => document.getElementById(id);
+
+    // State survives a page refresh mid-game. Storage can fail (private mode), so stay quiet if it does.
+    const state = load() ?? { count: 0, deck: [] };
+
+    function load() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { return null; }
+    }
+    function save() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+    }
+
+    // Shuffle-bag: every chore comes up once before any repeats.
+    function nextChore() {
+      if (state.deck.length === 0) {
+        state.deck = CHORES.map((_, i) => i);
+        for (let i = state.deck.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [state.deck[i], state.deck[j]] = [state.deck[j], state.deck[i]];
+        }
+      }
+      return CHORES[state.deck.pop()];
+    }
+
+    function show(screen) {
+      document.body.dataset.screen = screen;
+      $("home").hidden = screen !== "home";
+      $("chore").hidden = screen !== "chore";
+      (screen === "home" ? $("generate") : $("done")).focus();
+    }
+
+    function renderTally() {
+      $("count").textContent = state.count;
+      $("tally").hidden = $("reset").hidden = state.count === 0;
+    }
+
+    $("generate").addEventListener("click", () => {
+      $("chore-text").textContent = nextChore();
+      state.count++;
+      save();
+      renderTally();
+      show("chore");
+    });
+
+    $("done").addEventListener("click", () => show("home"));
+
+    $("reset").addEventListener("click", () => {
+      state.count = 0;
+      state.deck = [];
+      save();
+      renderTally();
+    });
+
+    renderTally();
+  </script>
+</body>
+</html>
